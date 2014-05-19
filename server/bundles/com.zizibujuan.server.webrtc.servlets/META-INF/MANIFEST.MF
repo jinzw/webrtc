@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: server.webrtc.servlets
-Bundle-SymbolicName: com.zizibujuan.server.webrtc.servlets
+Bundle-SymbolicName: com.zizibujuan.server.webrtc.servlets;singleton:=true
 Bundle-Version: 0.0.1.qualifier
 Bundle-Activator: com.zizibujuan.server.webrtc.servlets.Activator
 Bundle-Vendor: zizibujuan.com

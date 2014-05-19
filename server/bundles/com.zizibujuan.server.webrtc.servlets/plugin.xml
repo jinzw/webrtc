@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+	<extension
+         point="org.eclipse.equinox.http.registry.httpcontexts">
+         <httpcontext
+            id="com.zizibujuan.client.webrtc.client.httpcontext">
+	         <resource-mapping
+	               bundle="com.zizibujuan.client.webrtc"
+	               path="/web/webrtc">
+	         </resource-mapping>
+         </httpcontext>
+    </extension>
+	<extension
+         point="org.eclipse.equinox.http.registry.resources">
+      <resource
+            alias="/webrtc"
+            httpcontextId="com.zizibujuan.client.webrtc.client.httpcontext">
+      </resource>
+    </extension>
+    
+	<extension
+         point="org.eclipse.equinox.http.registry.servlets">
+      <!--
+      <servlet
+            alias="/teaching"
+            class="com.zizibujuan.teach.server.servlets.TeachingServlet">
+      </servlet>
+      -->
+	</extension>
+</plugin>
