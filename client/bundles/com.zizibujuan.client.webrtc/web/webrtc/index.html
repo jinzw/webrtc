@@ -3,8 +3,55 @@
 <head>
 <meta charset="UTF-8">
 <title>Insert title here</title>
+<script type="text/javascript">
+
+navigator.getUserMedia = (navigator.getUserMedia ||
+		navigator.webkitGetUserMedia ||
+		navigator.mozGetUserMedia ||
+		navigator.msGetUserMedia);
+//获取屏幕信息		
+navigator.getUserMedia({
+	audio: false,
+	video: {
+		mandatory: {
+			chromeMediaSource: "screen",
+			maxWidth: 1280,
+			maxHeight: 720
+		}
+	}
+}, function(localMediaStream){
+	var video = document.querySelector("video");
+	video.src = window.URL.createObjectURL(localMediaStream);
+	video.onloadedmetadata = function(e){
+		console.log("onloadedmetadata", e);
+	}
+}, function(error){
+	console.error(error)
+});
+
+/*
+ * var w = window,
+ PeerConnection = w.mozRTCPeerConnection || w.webkitRTCPeerConnection,
+ SessionDescription = w.mozRTCSessionDescription || w.RTCSessionDescription,
+ IceCandidate = w.mozRTCIceCandidate || w.RTCIceCandidate;
+
+var STUN = {
+ url: !moz ? 'stun:stun.l.google.com:19302' : 'stun:23.21.150.121'
+};
+
+var TURN = {
+ url: 'turn:homeo@turn.bistri.com:80',
+ credential: 'homeo'
+};
+
+ */
+
+
+
+
+</script>
 </head>
 <body>
-
+<video autoplay="autoplay"></video>
 </body>
 </html>
