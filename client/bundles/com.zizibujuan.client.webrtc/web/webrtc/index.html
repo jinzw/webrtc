@@ -3,7 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <title>Insert title here</title>
+
+
+
 <script type="text/javascript">
+
+var localView = document.getElementById("localView");
+var remoteView = document.getElementById("remoteView");
 
 navigator.getUserMedia = (navigator.getUserMedia ||
 		navigator.webkitGetUserMedia ||
@@ -15,19 +21,47 @@ navigator.getUserMedia({
 	video: {
 		mandatory: {
 			chromeMediaSource: "screen",
-			maxWidth: 1280,
-			maxHeight: 720
+			maxWidth: 500,
+			maxHeight: 500
 		}
 	}
 }, function(localMediaStream){
-	var video = document.querySelector("video");
-	video.src = window.URL.createObjectURL(localMediaStream);
-	video.onloadedmetadata = function(e){
+	localView.src = window.URL.createObjectURL(localMediaStream);
+	localView.onloadedmetadata = function(e){
 		console.log("onloadedmetadata", e);
 	}
+	//pc.onaddstream({stream: localMediaStream})
+	pc.addStream(localMediaStream);
+	pc.createOffer(function(offer){
+		pc.setLocalDescription(new RTCSessionDescription(offer), function(){
+			
+		}}, function(error){
+			console.error(error);
+		});
+	});
 }, function(error){
 	console.error(error)
 });
+
+RTCPeerConnection = window.RTCPeerConnection || 
+	window.mozRTCPeerConnection || 
+	window.webkitRTCPeerConnection;
+RTCSessionDescription = window.RTCSessionDescription || 
+	window.mozRTCSessionDescription || 
+	window.webkitRTCSessionDescription;
+console.log(RTCPeerConnection)
+
+var iceServers = [];
+iceServers.push({
+	url: "stun:stun.1.google.com:19302"
+});
+var pc = new RTCPeerConnection({
+	"iceServers": iceServers
+});
+
+pc.onaddstream = function(evt){
+	remoteView.src = URL.createObjectURL(evt.stream);
+}
 
 /*
  * var w = window,
@@ -52,6 +86,11 @@ var TURN = {
 </script>
 </head>
 <body>
-<video autoplay="autoplay"></video>
+<video id="localView" autoplay="autoplay"></video>
+
+<video id="remoteView" autoplay="autoplay"></video>
+
+
+
 </body>
 </html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script type="text/javascript" 
+	data-dojo-config="
+		async:true,
+		parseOnLoad:false,
+		isDebug:true" 
+	src="/dojo/dojo.js"></script>
+	
+<script type="text/javascript">
+require(["dojo/json",
+         "dojo/Deferred",
+         "dojo/domReady!"], function(
+        		 JSON,
+        		 Deferred){
+	
+	var ws = new WebSocket("wss://localhost:8443/signalingChannel");
+	ws.onopen = function(event){
+		console.log("websocket open");
+	}
+	
+	navigator.getUserMedia = (navigator.getUserMedia ||
+			navigator.webkitGetUserMedia ||
+			navigator.mozGetUserMedia ||
+			navigator.msGetUserMedia);
+	
+	RTCPeerConnection = window.RTCPeerConnection || 
+		window.mozRTCPeerConnection || 
+		window.webkitRTCPeerConnection;
+	
+	RTCSessionDescription = window.RTCSessionDescription || 
+		window.mozRTCSessionDescription || 
+		window.webkitRTCSessionDescription;
+	console.log("RTCPeerConnection", RTCPeerConnection);
+
+	RTCIceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate || window.webkitRTCIceCandidate;
+	
+	
+	var iceServers = [];
+	iceServers.push({
+		url: "stun:stun.1.google.com:19302"
+	});
+	var pc;
+	function start(){
+		pc = new RTCPeerConnection({
+			"iceServers": iceServers
+		});
+		
+		pc.onicecandidate = function(evt){
+			if(evt.candidate){
+				console.log("onicecandidate", evt.candidate);
+				ws.send(JSON.stringify({"candidate": evt.candidate}));
+			}
+		}
+		
+		pc.onnegotiationneeded = function(){
+			pc.createOffer(function(desc){
+				pc.setLocalDescription(desc, function(){
+					ws.send(JSON.stringify({ "sdp": pc.localDescription}));
+				}, function(error){
+					console.log(error, error.name + ":" + error.message)
+				});
+			}, function(error){
+				console.log(error, error.name + ":" + error.message)
+			});
+		}
+		
+		var remoteView = document.getElementById("remoteView");
+		pc.onaddstream = function (evt) {
+	        remoteView.src = URL.createObjectURL(evt.stream);
+	    };
+	    
+	    navigator.getUserMedia({ "audio": true, "video": true }, function (stream) {
+	        pc.addStream(stream);
+	    }, function(error){
+	    	console.error(error);
+	    });
+	}
+
+	ws.onmessage = function(event){
+		console.log("websocket message")
+		if(!pc){
+			start();
+		}
+		
+		var message = JSON.parse(event.data);
+		if(message.a)return;
+	    if (message.sdp)
+	        pc.setRemoteDescription(new RTCSessionDescription(message.sdp), function () {
+	            // if we received an offer, we need to answer
+	            if (pc.remoteDescription.type == "offer")
+	                pc.createAnswer(localDescCreated, logError);
+	        }, logError);
+	    else
+	        pc.addIceCandidate(new RTCIceCandidate(message.candidate),
+	            function () {}, logError);
+	}
+	
+	function logError(error) {
+	    console.error(error.name + ": " + error.message);
+	}
+	
+	function getSocket(){
+		var deferred = new Deferred();
+		ws.onopen = function(event){
+			console.log("websocket open");
+			deferred.resolve();
+		}
+		return deferred.promise;
+	}
+	
+	getSocket().then(function(){
+		ws.send('{"a":"qq"}');
+	});
+});
+</script>
+</head>
+<body>
+<video id="remoteView" autoplay="autoplay"></video>
+</body>
+</html>
