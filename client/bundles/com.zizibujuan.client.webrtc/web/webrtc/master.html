@@ -26,6 +26,12 @@ require(["dojo/json",
 			navigator.webkitGetUserMedia ||
 			navigator.mozGetUserMedia ||
 			navigator.msGetUserMedia);
+	if(!navigator.getUserMedia){
+		console.error("浏览器不支持getUserMedia");
+		return;
+	}
+	
+	
 	
 	RTCPeerConnection = window.RTCPeerConnection || 
 		window.mozRTCPeerConnection || 
@@ -50,6 +56,7 @@ require(["dojo/json",
 		});
 		
 		pc.onicecandidate = function(evt){
+			debugger;
 			if(evt.candidate){
 				console.log("onicecandidate", evt.candidate);
 				ws.send(JSON.stringify({"candidate": evt.candidate}));
@@ -57,12 +64,13 @@ require(["dojo/json",
 		}
 		
 		pc.onnegotiationneeded = function(){
+			debugger;
 			pc.createOffer(function(desc){
-				pc.setLocalDescription(desc, function(){
-					ws.send(JSON.stringify({ "sdp": pc.localDescription}));
-				}, function(error){
-					console.log(error, error.name + ":" + error.message)
-				});
+				
+				pc.setLocalDescription(desc);
+				debugger;
+				// sdp = Sesson Description Protocol
+				ws.send(JSON.stringify({ "sdp": desc}));
 			}, function(error){
 				console.log(error, error.name + ":" + error.message)
 			});
@@ -70,16 +78,28 @@ require(["dojo/json",
 		
 		var remoteView = document.getElementById("remoteView");
 		pc.onaddstream = function (evt) {
-	        remoteView.src = URL.createObjectURL(evt.stream);
+	        remoteView.src = URL.createObjectURL(evt.stream); 
 	    };
 	    
-	    navigator.getUserMedia({ "audio": true, "video": true }, function (stream) {
+	    navigator.getUserMedia({ 
+	    	"audio": false, 
+	    	"video": {
+	    		mandatory: {
+	    			chromeMediaSource: "screen",
+	    			maxWidth: 1280,
+	    			maxHeight: 720
+	    		},
+	    		optional: []
+	    	}
+	    }, function (stream) {
 	        pc.addStream(stream);
 	    }, function(error){
-	    	console.error(error);
+	    	console.error("getUserMedia error:", error);
 	    });
 	}
 
+	start();
+	
 	ws.onmessage = function(event){
 		console.log("websocket message")
 		if(!pc){

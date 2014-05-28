@@ -2,9 +2,73 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Insert title here</title>
+<title>client</title>
+<script type="text/javascript" 
+	data-dojo-config="
+		async:true,
+		parseOnLoad:false,
+		isDebug:true" 
+	src="/dojo/dojo.js"></script>
+	
+<script type="text/javascript">
+require(["dojo/json",
+         "dojo/Deferred",
+         "dojo/domReady!"], function(
+        		 JSON,
+        		 Deferred){
+	
+	var ws = new WebSocket("wss://localhost:8443/signalingChannel");
+	ws.onopen = function(event){
+		console.log("websocket open");
+	}
+	
+	RTCPeerConnection = window.RTCPeerConnection || 
+	window.mozRTCPeerConnection || 
+	window.webkitRTCPeerConnection;
+
+	RTCSessionDescription = window.RTCSessionDescription || 
+		window.mozRTCSessionDescription || 
+		window.webkitRTCSessionDescription;
+	console.log("RTCPeerConnection", RTCPeerConnection);
+	
+	RTCIceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate || window.webkitRTCIceCandidate;
+	
+	
+	var iceServers = [];
+	iceServers.push({
+		url: "stun:stun.1.google.com:19302"
+	});
+	var pc;
+	pc = new RTCPeerConnection({
+		"iceServers": iceServers
+	});
+	var remoteView = document.getElementById("remoteView");
+	pc.onaddstream = function (evt) {
+        remoteView.src = URL.createObjectURL(evt.stream); 
+    };
+
+	ws.onmessage = function(event){
+		console.log("websocket onmessage", event);
+		var message = JSON.parse(event.data);
+		if (message.sdp){
+			pc.setRemoteDescription(new RTCSessionDescription(message.sdp), function () {
+	            // if we received an offer, we need to answer
+	            if (pc.remoteDescription.type == "offer")
+	                pc.createAnswer(localDescCreated, logError);
+	        }, logError);
+		}else if(message.candidate){
+			pc.addIceCandidate(new RTCIceCandidate(message.candidate));
+		}
+	        
+	};
+	
+	function logError(error) {
+	    console.error(error.name + ": " + error.message);
+	}
+});
+</script>
 </head>
 <body>
-
+<video id="remoteView" autoplay="autoplay"></video>
 </body>
 </html>

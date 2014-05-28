@@ -14,8 +14,7 @@ public class SignalingChannelServlet extends WebSocketServlet{
 	private static final long serialVersionUID = -1059026580914219545L;
 
 	@Override
-	public WebSocket doWebSocketConnect(HttpServletRequest arg0, String arg1) {
-		
+	public WebSocket doWebSocketConnect(HttpServletRequest req, String protocol) {
 		return new SignalingSocket();
 	}
 
