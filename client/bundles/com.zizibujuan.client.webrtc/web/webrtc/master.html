@@ -12,9 +12,11 @@
 	
 <script type="text/javascript">
 require(["dojo/json",
+         "dojo/on",
          "dojo/Deferred",
          "dojo/domReady!"], function(
         		 JSON,
+        		 on,
         		 Deferred){
 	
 	var ws = new WebSocket("wss://localhost:8443/signalingChannel");
@@ -86,8 +88,8 @@ require(["dojo/json",
 	    	"video": {
 	    		mandatory: {
 	    			chromeMediaSource: "screen",
-	    			maxWidth: 1280,
-	    			maxHeight: 720
+	    			maxWidth: 600/*1280*/,
+	    			maxHeight: 500/*720*/
 	    		},
 	    		optional: []
 	    	}
@@ -97,8 +99,10 @@ require(["dojo/json",
 	    	console.error("getUserMedia error:", error);
 	    });
 	}
-
-	start();
+	
+	function stop(){
+		
+	}
 	
 	ws.onmessage = function(event){
 		console.log("websocket message")
@@ -135,10 +139,20 @@ require(["dojo/json",
 	getSocket().then(function(){
 		ws.send('{"a":"qq"}');
 	});
+	
+	on("btnShare", "click", function(e){
+		start();
+	});
+	
+	on("btnStop", "click", function(e){
+		stop();
+	});
 });
 </script>
 </head>
 <body>
+<button id="btnShare">共享桌面</button>
+<button id="btnStop">停止共享</button>
 <video id="remoteView" autoplay="autoplay"></video>
 </body>
 </html>
