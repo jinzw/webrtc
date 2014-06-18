@@ -44,8 +44,9 @@ require(["dojo/json",
 		window.webkitRTCSessionDescription;
 	console.log("RTCPeerConnection", RTCPeerConnection);
 
-	RTCIceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate || window.webkitRTCIceCandidate;
-	
+	RTCIceCandidate = window.RTCIceCandidate || 
+		window.mozRTCIceCandidate || 
+		window.webkitRTCIceCandidate;
 	
 	var iceServers = [];
 	iceServers.push({
@@ -58,7 +59,6 @@ require(["dojo/json",
 		});
 		
 		pc.onicecandidate = function(evt){
-			debugger;
 			if(evt.candidate){
 				console.log("onicecandidate", evt.candidate);
 				ws.send(JSON.stringify({"candidate": evt.candidate}));
@@ -66,22 +66,15 @@ require(["dojo/json",
 		}
 		
 		pc.onnegotiationneeded = function(){
-			debugger;
 			pc.createOffer(function(desc){
-				
 				pc.setLocalDescription(desc);
-				debugger;
 				// sdp = Sesson Description Protocol
 				ws.send(JSON.stringify({ "sdp": desc}));
 			}, function(error){
 				console.log(error, error.name + ":" + error.message)
 			});
 		}
-		
-		var remoteView = document.getElementById("remoteView");
-		pc.onaddstream = function (evt) {
-	        remoteView.src = URL.createObjectURL(evt.stream); 
-	    };
+
 	    
 	    navigator.getUserMedia({ 
 	    	"audio": false, 
@@ -102,25 +95,6 @@ require(["dojo/json",
 	
 	function stop(){
 		
-	}
-	
-	ws.onmessage = function(event){
-		console.log("websocket message")
-		if(!pc){
-			start();
-		}
-		
-		var message = JSON.parse(event.data);
-		if(message.a)return;
-	    if (message.sdp)
-	        pc.setRemoteDescription(new RTCSessionDescription(message.sdp), function () {
-	            // if we received an offer, we need to answer
-	            if (pc.remoteDescription.type == "offer")
-	                pc.createAnswer(localDescCreated, logError);
-	        }, logError);
-	    else
-	        pc.addIceCandidate(new RTCIceCandidate(message.candidate),
-	            function () {}, logError);
 	}
 	
 	function logError(error) {
@@ -153,6 +127,5 @@ require(["dojo/json",
 <body>
 <button id="btnShare">共享桌面</button>
 <button id="btnStop">停止共享</button>
-<video id="remoteView" autoplay="autoplay"></video>
 </body>
 </html>

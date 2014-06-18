@@ -31,7 +31,9 @@ require(["dojo/json",
 		window.webkitRTCSessionDescription;
 	console.log("RTCPeerConnection", RTCPeerConnection);
 	
-	RTCIceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate || window.webkitRTCIceCandidate;
+	RTCIceCandidate = window.RTCIceCandidate || 
+		window.mozRTCIceCandidate || 
+		window.webkitRTCIceCandidate;
 	
 	
 	var iceServers = [];
