@@ -13,10 +13,12 @@
 <script type="text/javascript">
 require(["dojo/json",
          "dojo/on",
+         "dojo/dom",
          "dojo/Deferred",
          "dojo/domReady!"], function(
         		 JSON,
         		 on,
+        		 dom,
         		 Deferred){
 	
 	var ws = new WebSocket("wss://localhost:8443/signalingChannel");
@@ -114,11 +116,14 @@ require(["dojo/json",
 		ws.send('{"a":"qq"}');
 	});
 	
-	on("btnShare", "click", function(e){
+	var btnShare = dom.byId("btnShare");
+	var btnStop = dom.byId("btnStop");
+	
+	on(btnShare, "click", function(e){
 		start();
 	});
 	
-	on("btnStop", "click", function(e){
+	on(btnStop, "click", function(e){
 		stop();
 	});
 });
