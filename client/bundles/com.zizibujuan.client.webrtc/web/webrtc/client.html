@@ -64,8 +64,14 @@ require(["dojo/json",
 	        
 	};
 	
+	function localDescCreated(desc) {
+	    pc.setLocalDescription(desc, function () {
+	    	ws.send(JSON.stringify({ "sdp": pc.localDescription }));
+	    }, logError);
+	}
+	
 	function logError(error) {
-	    console.error(error.name + ": " + error.message);
+	    console.error(error.name + ": " + error.message, error);
 	}
 });
 </script>
