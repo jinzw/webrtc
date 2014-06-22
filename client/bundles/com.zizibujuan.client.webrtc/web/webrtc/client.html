@@ -46,14 +46,18 @@ require(["dojo/json",
 	});
 	var remoteView = document.getElementById("remoteView");
 	pc.onaddstream = function (evt) {
-        remoteView.src = URL.createObjectURL(evt.stream); 
+		console.log("client add stream");
+        remoteView.src = URL.createObjectURL(evt.stream);
+        remoteView.play();
     };
 
 	ws.onmessage = function(event){
 		console.log("websocket onmessage", event);
 		var message = JSON.parse(event.data);
 		if (message.sdp){
+			debugger;
 			pc.setRemoteDescription(new RTCSessionDescription(message.sdp), function () {
+				debugger;
 	            // if we received an offer, we need to answer
 	            if (pc.remoteDescription.type == "offer")
 	                pc.createAnswer(localDescCreated, logError);
@@ -77,6 +81,6 @@ require(["dojo/json",
 </script>
 </head>
 <body>
-<video id="remoteView" autoplay="autoplay"></video>
+<video id="remoteView" style="width:100%; height:100%"></video>
 </body>
 </html>

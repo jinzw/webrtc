@@ -68,16 +68,10 @@ require(["dojo/json",
 		}
 		
 		pc.onnegotiationneeded = function(){
-			pc.createOffer(function(desc){
-				pc.setLocalDescription(desc);
-				// sdp = Sesson Description Protocol
-				ws.send(JSON.stringify({ "sdp": desc}));
-			}, function(error){
-				console.log(error, error.name + ":" + error.message)
-			});
+			pc.createOffer(localDescCreated, logError);
 		}
 
-	    
+	    var localView = dom.byId("localView");
 	    navigator.getUserMedia({ 
 	    	"audio": false, 
 	    	"video": {
@@ -90,6 +84,7 @@ require(["dojo/json",
 	    	}
 	    }, function (stream) {
 	        pc.addStream(stream);
+	        localView.src = URL.createObjectURL(stream); 
 	    }, function(error){
 	    	console.error("getUserMedia error:", error);
 	    });
@@ -97,6 +92,13 @@ require(["dojo/json",
 	
 	function stop(){
 		
+	}
+	
+	function localDescCreated(desc){
+		pc.setLocalDescription(desc, function(){
+			// sdp = Sesson Description Protocol
+			ws.send(JSON.stringify({ "sdp": pc.localDescription}));
+		}, logError);
 	}
 	
 	function logError(error) {
@@ -132,5 +134,6 @@ require(["dojo/json",
 <body>
 <button id="btnShare">共享桌面</button>
 <button id="btnStop">停止共享</button>
+<video id="localView" autoplay="autoplay"></video>
 </body>
 </html>
