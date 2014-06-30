@@ -12,9 +12,11 @@
 	
 <script type="text/javascript">
 require(["dojo/json",
+         "dojo/dom",
          "dojo/Deferred",
          "dojo/domReady!"], function(
         		 JSON,
+        		 dom,
         		 Deferred){
 	
 	var ws = new WebSocket("wss://localhost:8443/signalingChannel");
@@ -29,7 +31,6 @@ require(["dojo/json",
 	RTCSessionDescription = window.RTCSessionDescription || 
 		window.mozRTCSessionDescription || 
 		window.webkitRTCSessionDescription;
-	console.log("RTCPeerConnection", RTCPeerConnection);
 	
 	RTCIceCandidate = window.RTCIceCandidate || 
 		window.mozRTCIceCandidate || 
@@ -44,7 +45,7 @@ require(["dojo/json",
 	pc = new RTCPeerConnection({
 		"iceServers": iceServers
 	});
-	var remoteView = document.getElementById("remoteView");
+	var remoteView = dom.byId("remoteView");
 	pc.onaddstream = function (evt) {
 		console.log("client add stream");
         remoteView.src = URL.createObjectURL(evt.stream);
@@ -52,7 +53,7 @@ require(["dojo/json",
     };
 
 	ws.onmessage = function(event){
-		console.log("websocket onmessage", event);
+		console.log("client websocket onmessage", event);
 		var message = JSON.parse(event.data);
 		if (message.sdp){
 			debugger;

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script type="text/javascript" 
+	data-dojo-config="
+		async:true,
+		parseOnLoad:false,
+		isDebug:true" 
+	src="/dojo/dojo.js"></script>
+
+<script type="text/javascript">
+require(["dojo/json",
+         "dojo/on",
+         "dojo/dom",
+         "dojo/Deferred",
+         "dojo/domReady!"], function(
+        		 JSON,
+        		 on,
+        		 dom,
+        		 Deferred){
+	
+	var startButton = dom.byId("startButton");
+	var callButton = dom.byId("callButton");
+	var hangupButton = dom.byId("hangupButton");
+	
+	callButton.disabled = true;
+	hangupButton.disabled = true;
+	startButton.onclick = start;
+	callButton.onclick = call;
+	hangupButton.onclick = hangup;
+	
+	var localVideo = dom.byId("localVideo");
+	var remoteVideo = dom.byId("remoteVideo");
+	
+	navigator.getUserMedia = (navigator.getUserMedia ||
+			navigator.webkitGetUserMedia ||
+			navigator.mozGetUserMedia ||
+			navigator.msGetUserMedia);
+	if(!navigator.getUserMedia){
+		console.error("浏览器不支持getUserMedia");
+		return;
+	}
+	
+	RTCPeerConnection = window.RTCPeerConnection || 
+		window.mozRTCPeerConnection || 
+		window.webkitRTCPeerConnection;
+	
+	RTCSessionDescription = window.RTCSessionDescription || 
+		window.mozRTCSessionDescription || 
+		window.webkitRTCSessionDescription;
+
+	RTCIceCandidate = window.RTCIceCandidate || 
+		window.mozRTCIceCandidate || 
+		window.webkitRTCIceCandidate;
+	
+	// 将启动与会话分开
+	function start(){
+		trace("Requesting local stream");
+		
+	}
+	
+});
+</script>
+</head>
+<body>
+<div>
+	<video id="localVideo" autoplay muted></video>
+  	<video id="remoteVideo" autoplay></video>
+
+	 <div>
+	   <button id="startButton">Start</button>
+	   <button id="callButton">Call</button>
+	   <button id="hangupButton">Hang Up</button>
+	 </div>
+</div>
+</body>
+</html>
+
+

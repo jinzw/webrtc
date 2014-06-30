@@ -11,6 +11,11 @@
 	src="/dojo/dojo.js"></script>
 	
 <script type="text/javascript">
+
+// 开一个房间，设置room key
+// 通过room key加入房间
+
+
 require(["dojo/json",
          "dojo/on",
          "dojo/dom",
@@ -34,9 +39,7 @@ require(["dojo/json",
 		console.error("浏览器不支持getUserMedia");
 		return;
 	}
-	
-	
-	
+
 	RTCPeerConnection = window.RTCPeerConnection || 
 		window.mozRTCPeerConnection || 
 		window.webkitRTCPeerConnection;
@@ -44,7 +47,6 @@ require(["dojo/json",
 	RTCSessionDescription = window.RTCSessionDescription || 
 		window.mozRTCSessionDescription || 
 		window.webkitRTCSessionDescription;
-	console.log("RTCPeerConnection", RTCPeerConnection);
 
 	RTCIceCandidate = window.RTCIceCandidate || 
 		window.mozRTCIceCandidate || 
@@ -55,6 +57,7 @@ require(["dojo/json",
 		url: "stun:stun.1.google.com:19302"
 	});
 	var pc;
+	
 	function start(){
 		pc = new RTCPeerConnection({
 			"iceServers": iceServers
@@ -114,9 +117,11 @@ require(["dojo/json",
 		return deferred.promise;
 	}
 	
+	/*
 	getSocket().then(function(){
 		ws.send('{"a":"qq"}');
 	});
+	*/
 	
 	var btnShare = dom.byId("btnShare");
 	var btnStop = dom.byId("btnStop");
@@ -128,6 +133,25 @@ require(["dojo/json",
 	on(btnStop, "click", function(e){
 		stop();
 	});
+	
+	
+	ws.onmessage = function(event){
+		console.log("master websocket onmessage", event);
+		var message = JSON.parse(event.data);
+		if (message.sdp){
+			debugger;
+			pc.setRemoteDescription(new RTCSessionDescription(message.sdp), function () {
+				debugger;
+	            // if we received an offer, we need to answer
+	            if (pc.remoteDescription.type == "offer")
+	                pc.createAnswer(localDescCreated, logError);
+	        }, logError);
+		}else if(message.candidate){
+			pc.addIceCandidate(new RTCIceCandidate(message.candidate));
+		}
+	        
+	};
+	
 });
 </script>
 </head>
